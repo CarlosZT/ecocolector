@@ -13,8 +13,8 @@ import kotlinx.android.synthetic.main.activity_blue_tracker.*
 
 class BlueTracker : AppCompatActivity() {
 
-    lateinit var blue:BluJhr
-    var devicesBluetooth = ArrayList<String>()
+    private lateinit var blue:BluJhr
+    private var devicesBluetooth = ArrayList<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,7 +23,7 @@ class BlueTracker : AppCompatActivity() {
         blue = BluJhr(this)
         blue.onBluetooth()
 
-        listDeviceBluetooth.setOnItemClickListener { adapterView, view, i, l ->
+        listDeviceBluetooth.setOnItemClickListener { _, _, i, _ ->
             if (devicesBluetooth.isNotEmpty()){
                 blue.connect(devicesBluetooth[i])
                 blue.setDataLoadFinishedListener(object:BluJhr.ConnectedBluetooth{
@@ -67,9 +67,6 @@ class BlueTracker : AppCompatActivity() {
             blue.closeConnection()
             true
         }
-
-
-
 
     }
 

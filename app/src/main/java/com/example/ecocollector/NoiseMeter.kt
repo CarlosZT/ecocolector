@@ -1,80 +1,91 @@
 package com.example.ecocollector
 
 import android.os.Bundle
-import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
+import android.os.Handler
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_audio_recorder.*
+import kotlin.math.abs
+import kotlin.math.log10
 
 class NoiseMeter : AppCompatActivity() {
-    private val aRec = AudioRecorder(this)
+
+    private var status:Boolean = false
+    private lateinit var pt:Runnable
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_audio_recorder)
+        var aRec = SoundSampler(this)
 
-        title = "Audio tracker"
+        var handler:Handler = Handler()
+        var reference = 1
+        var samplingRate:Long = 200
+        var locker = true
+        var amp = 0.0
+        var db = 0
 
-        recCtrl.setOnClickListener { ctrlAction() }
-    }
+        var diff = ArrayList<Int>()
+        var avg:Double = 0.0
+        var std:Double = 0.0
+        var count:Int = 0
 
-    private fun ctrlAction(){
-        when (recCtrl.text) {
-            "Start" -> {
-                if (aRec.checkPermission()) {
-                    aRec.requestPermission()
-                } else {
-                    val builder: AlertDialog.Builder = AlertDialog.Builder(this)
+        pt = Runnable{
+            amp = aRec.amplitude
+            db = (20*log10((amp)/reference)).toInt()
 
-                    builder.setTitle("Warning")
-                    builder.setMessage("The audio around you will be recorded. " +
-                            "Please, keep the phone on an open and static place and don't use" +
-                            " another media functions during this process. Be sure you're not exposing" +
-                            "sensitive information.\n Start audio recording?")
-
-                    builder.setPositiveButton("Ok, I got it") { dialog, which ->
-                        startRecording()
-                    }
-
-                    builder.setNegativeButton("No") { dialog, which -> }
-                    builder.show()
-                }
+            if(db<0)
+                db = 0
+            avg += db
+            diff.add(db)
+            count += 1
+            lblData.text = "dB: $db"
+            Log.d("COUT", "dB: $db")
+            //lblData.text = "$amp"
+            if (locker)
+                handler.postDelayed(pt, samplingRate)
+            else{
+                lblData.text = "Calculating results..."
+                avg /= count
+                std = getStd(avg, diff)
+                lblData.text = "Avg: ${avg.toFloat()} dB\n Std: ${std.toFloat()} dB"
             }
+        }
 
-            "Stop" -> {
-                Toast.makeText(this, "Stopping...", Toast.LENGTH_SHORT).show()
+        recCtrl.setOnClickListener{
+            locker = !locker
+            if (status){
+                locker = false
                 recCtrl.text = "Start"
-                stopRecording()
+                aRec.stop()
+
+            }else{
+                avg = 0.0
+                diff = ArrayList<Int>()
+                count = 0
+                std = 0.0
+
+                aRec.start()
+                locker = true
+                recCtrl.text = "Stop"
+                handler.postDelayed(pt, samplingRate)
+
             }
-        }
-    }
-
-    private fun startRecording(){
-        Toast.makeText(this, "Recording...", Toast.LENGTH_SHORT).show()
-        recCtrl.text = "Stop"
-        aRec.setupMedia()
-        aRec.startRecording()
-    }
-
-    private fun stopRecording() {
-        aRec.stopRecording()
-        Toast.makeText(this, "The file was stored in ${aRec.getPath()}", Toast.LENGTH_SHORT).show()
-    }
-
-
-    override fun onBackPressed() {
-        val builder: AlertDialog.Builder = AlertDialog.Builder(this)
-
-        builder.setTitle("Warning")
-        builder.setMessage("The record will be stopped. Are you sure to continue?")
-        builder.setPositiveButton("Ok") { dialog, which ->
-            stopRecording()
-            this.finish()
+            status = !status
         }
 
-        builder.setNegativeButton("No") { dialog, which -> }
-        builder.show()
     }
+
+    private fun getStd(avg:Double, diff:ArrayList<Int>):Double{
+        var std:Double = 0.0
+        val size = diff.size
+        for(i in 0 until diff.size){
+            std = abs(diff[i] - avg)
+        }
+        std/=size
+        return std
+    }
+
 }
 
 
