@@ -2,11 +2,13 @@ package com.example.ecocollector
 
 import android.content.Intent
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import com.ingenieriajhr.blujhr.BluJhr
 import kotlinx.android.synthetic.main.activity_blue_tracker.*
 
@@ -15,6 +17,8 @@ class BlueTracker : AppCompatActivity() {
 
     private lateinit var blue:BluJhr
     private var devicesBluetooth = ArrayList<String>()
+    private val key = "getdata"
+    private var status = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,6 +39,8 @@ class BlueTracker : AppCompatActivity() {
                                 listDeviceBluetooth.visibility = View.GONE
                                 viewConn.visibility = View.VISIBLE
                                 rxReceived()
+                                status = true
+                                requestData(3000)
                             }
 
                             BluJhr.Connected.Pending->{
@@ -44,12 +50,14 @@ class BlueTracker : AppCompatActivity() {
 
                             BluJhr.Connected.False->{
                                 Toast.makeText(applicationContext,"False",Toast.LENGTH_SHORT).show()
+                                status = false
                             }
 
                             BluJhr.Connected.Disconnect->{
                                 Toast.makeText(applicationContext,"Disconnect",Toast.LENGTH_SHORT).show()
                                 listDeviceBluetooth.visibility = View.VISIBLE
                                 viewConn.visibility = View.GONE
+                                status = false
                             }
 
                         }
@@ -58,22 +66,51 @@ class BlueTracker : AppCompatActivity() {
             }
         }
 
+    }
 
-        buttonSend.setOnClickListener {
-            blue.bluTx(edtTx.text.toString())
+    private fun requestData(delay:Long){
+        Handler().apply {
+            val collector = object : Runnable {
+                override fun run() {
+                    if(status) {
+                        blue.bluTx(key)
+                        postDelayed(this, delay)
+                    }
+                }
+            }
+            postDelayed(collector, delay)
         }
+    }
 
-        buttonSend.setOnLongClickListener {
+    override fun onBackPressed() {
+        val dialog = AlertDialog.Builder(this)
+        dialog.setTitle("Warning")
+        dialog.setMessage("The connection with the sensor will be closed.\n" +
+                "Are you sure to continue?")
+        dialog.setPositiveButton("OK") { _, _ ->
             blue.closeConnection()
-            true
+            this.finish()
         }
+        dialog.setNegativeButton("No") {_,_ ->}
 
+        dialog.show()
     }
 
     private fun rxReceived() {
+        var init = 0
+        var counter = 1
         blue.loadDateRx(object:BluJhr.ReceivedData{
             override fun rxDate(rx: String) {
-                consola.text = consola.text.toString()+rx
+                var ppm:Int = rx.toInt()
+                if (ppm <= 0){
+                    if (init == 0) {
+                        consola.text = consola.text.toString() + "Pre-Heating...\n"
+                        init +=1
+                    }
+                }else {
+                    consola.text = "$counter) $ppm\n"
+                    counter++
+                }
             }
         })
     }

@@ -19,6 +19,7 @@ class SoundSampler(private val ctx:Activity) {
             AudioFormat.CHANNEL_IN_MONO,
             AudioFormat.ENCODING_PCM_16BIT
         )
+
         if (ActivityCompat.checkSelfPermission(
                 ctx,
                 Manifest.permission.RECORD_AUDIO

@@ -13,8 +13,8 @@ android {
         applicationId "com.example.ecocollector"
         minSdk 21
         targetSdk 32
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "0.2"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -44,4 +44,5 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
     implementation 'com.github.jose-jhr:blueJhrLibrary:0.1.0'
+    implementation 'com.jjoe64:graphview:4.2.2'
 }

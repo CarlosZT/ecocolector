@@ -23,32 +23,13 @@
         android:visibility="gone"
         >
 
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/edtTx"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="10dp"
-            >
-        </EditText>
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/buttonSend"
-            android:text="Send"
-            android:layout_gravity="center"
-            android:layout_marginTop="10dp"
-            >
-        </Button>
-
         <TextView
+            android:id="@+id/consola"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:id="@+id/consola"
-            >
-        </TextView>
+            android:textSize="30dp"
+            android:text=""></TextView>
 
 
     </LinearLayout>
