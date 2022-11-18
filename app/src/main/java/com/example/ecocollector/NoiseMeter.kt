@@ -28,6 +28,8 @@ class NoiseMeter : AppCompatActivity() {
         setContentView(R.layout.activity_audio_recorder)
 
         lgv = graphView
+
+        val dataProcessor = DataProcessor()
         var handler:Handler = Handler()
         var reference = 1
         var samplingRate:Long = 200
@@ -59,8 +61,8 @@ class NoiseMeter : AppCompatActivity() {
                 lblData.text = "Calculating results..."
                 diff.sort()
                 avg /= count
-                std = getStd(avg, diff)
-                moda = getModa(diff)
+                std = dataProcessor.getStd(avg, diff)
+                moda = dataProcessor.getModa(diff)
                 lblData.text = "Avg: ${avg.toFloat()} dB\n Std: ${std.toFloat()} dB\nModa: ${moda[0]}, Freq: ${moda[1]}\nItems: ${diff.size}"
                 plot(diff)
             }
@@ -110,38 +112,6 @@ class NoiseMeter : AppCompatActivity() {
             this.finish()
     }
 
-
-    private fun getStd(avg:Double, diff:ArrayList<Int>):Double{
-        var std = 0.0
-        val size = diff.size
-        for(i in 0 until diff.size){
-            std += abs(diff[i] - avg)
-
-
-        }
-        std/=size
-        return std
-    }
-    private fun getModa(data:ArrayList<Int>):Array<Int>{
-        var counter = 0
-        var best_count = 0
-        var key = data[0]
-        var best_key = data[0]
-
-        for(i in 0 until data.size){
-            if(data[i] == key){
-                counter ++
-                if(counter > best_count){
-                    best_count = counter
-                    best_key = key
-                }
-            }else {
-                key = data[i]
-                counter = 1
-            }
-        }
-        return arrayOf(best_key, best_count)
-    }
 
     private fun plot(data:ArrayList<Int>){
 

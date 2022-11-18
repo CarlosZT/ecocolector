@@ -32,6 +32,9 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+    buildFeatures{
+        viewBinding = true
+    }
 }
 
 dependencies {
@@ -45,4 +48,6 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
     implementation 'com.github.jose-jhr:blueJhrLibrary:0.1.0'
     implementation 'com.jjoe64:graphview:4.2.2'
+    implementation 'com.google.android.gms:play-services-location:17.0.0'
+
 }
