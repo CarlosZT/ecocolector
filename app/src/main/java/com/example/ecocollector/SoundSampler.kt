@@ -1,6 +1,7 @@
 package com.example.ecocollector
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.pm.PackageManager
 import android.media.AudioFormat
@@ -13,42 +14,44 @@ class SoundSampler(private val ctx:Activity) {
     private var ar: AudioRecord? = null
     private var minSize = 0
 
+    private val PERMISSIONS_CODE = 0
+    private val PERMISSIONS = arrayOf(
+        Manifest.permission.RECORD_AUDIO,
+        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+        Manifest.permission.READ_EXTERNAL_STORAGE
+    )
+
+    @SuppressLint("MissingPermission")
     fun start() {
         minSize = AudioRecord.getMinBufferSize(
             8000,
             AudioFormat.CHANNEL_IN_MONO,
             AudioFormat.ENCODING_PCM_16BIT
         )
-
-        if (ActivityCompat.checkSelfPermission(
-                ctx,
-                Manifest.permission.RECORD_AUDIO
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            val permissions = arrayOf(
-                Manifest.permission.RECORD_AUDIO,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.READ_EXTERNAL_STORAGE
-            )
-            ActivityCompat.requestPermissions(ctx, permissions, 0)
-        }else{
-            ar = AudioRecord(
-                MediaRecorder.AudioSource.MIC,
-                8000,
-                AudioFormat.CHANNEL_IN_MONO,
-                AudioFormat.ENCODING_PCM_16BIT,
-                minSize
-            )
-
-            ar!!.startRecording()
-        }
-
+        ar = AudioRecord(
+            MediaRecorder.AudioSource.MIC,
+            8000,
+            AudioFormat.CHANNEL_IN_MONO,
+            AudioFormat.ENCODING_PCM_16BIT,
+            minSize
+        )
+        ar!!.startRecording()
     }
 
     fun stop() {
         if (ar != null) {
             ar!!.stop()
         }
+    }
+
+    fun hasPermissions():Boolean{
+        for (i in PERMISSIONS.indices)
+            if(ActivityCompat.checkSelfPermission(ctx, PERMISSIONS[i]) != PackageManager.PERMISSION_GRANTED)return false
+         return true
+    }
+
+    fun requestPermissions(){
+        ActivityCompat.requestPermissions(ctx, PERMISSIONS, PERMISSIONS_CODE)
     }
 
     val amplitude: Double
@@ -61,7 +64,6 @@ class SoundSampler(private val ctx:Activity) {
                     max = abs(s.toInt())
                 }
             }
-
             return max.toDouble()
         }
 }
