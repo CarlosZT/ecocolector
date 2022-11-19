@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.os.Looper
 import android.util.Log
 import androidx.core.app.ActivityCompat
+import androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
@@ -14,68 +15,57 @@ import com.google.android.gms.location.LocationServices
 
 
 class CoordsModule(private val ctx: Activity) {
-    var latitude:Double = 0.0
-    var longitude:Double = 0.0
-    private var locationRequest:LocationRequest = LocationRequest()
+    var latitude: Double = 0.0
+    var longitude: Double = 0.0
+    private var locationRequest: LocationRequest = LocationRequest()
     private val PERMISSION_CODE = 0
-    private val PERMISSIONS = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION,
-                                        Manifest.permission.ACCESS_COARSE_LOCATION)
+    private val PERMISSIONS = arrayOf(
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.ACCESS_COARSE_LOCATION
+    )
 
-    private val locationCallback = object: LocationCallback(){
+    private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(p0: LocationResult?) {
-            p0?:return
+            p0 ?: return
             var location = p0.lastLocation
             latitude = location.latitude
             longitude = location.longitude
         }
     }
 
-    fun hasPermissions():Boolean{
-
+    fun hasPermissions(): Boolean {
         for (i in PERMISSIONS.indices)
-            if (ActivityCompat.checkSelfPermission(ctx, PERMISSIONS[i])!=PackageManager.PERMISSION_GRANTED) return false
+            if (ActivityCompat.checkSelfPermission(
+                    ctx,
+                    PERMISSIONS[i]
+                ) != PackageManager.PERMISSION_GRANTED
+            ) return false
         return true
     }
 
-    fun requestPermissions(){
+    fun requestPermissions() {
         ActivityCompat.requestPermissions(ctx, PERMISSIONS, PERMISSION_CODE)
+        Log.d("COUT", "Permission requested")
     }
 
+
     @SuppressLint("MissingPermission")
-    fun startService(){
+    fun startService() {
         try {
             locationRequest.interval = 5000
             locationRequest.fastestInterval = 3000
             locationRequest.priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
 
-            if(!hasPermissions()) return
-            else LocationServices.getFusedLocationProviderClient(ctx).requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper())
+            if (!hasPermissions()) return
+            else LocationServices.getFusedLocationProviderClient(ctx)
+                .requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper())
 
-        }catch (e:Exception){
+        } catch (e: Exception) {
             Log.d("COUT", "Something went wrong: ${e.message}")
         }
     }
 
-    fun stopLocationUpdates(){
+    fun stopLocationUpdates() {
         LocationServices.getFusedLocationProviderClient(ctx).removeLocationUpdates(locationCallback)
     }
-
-    //Ni idea de cómo meter esto por aqui
-//    override fun onRequestPermissionsResult(
-//        requestCode: Int,
-//        permissions: Array<out String>,
-//        grantResults: IntArray
-//    ) {
-//        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-//        if(requestCode == 0 && grantResults.isNotEmpty()){
-//            if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
-//                getCoords()
-//            }else{
-//                Toast.makeText(this, "Access denied", Toast.LENGTH_SHORT).show()
-//            }
-//        }
-//    }
-
 }
-
-

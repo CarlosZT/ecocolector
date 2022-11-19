@@ -13,8 +13,8 @@ android {
         applicationId "com.example.ecocollector"
         minSdk 21
         targetSdk 32
-        versionCode 2
-        versionName "0.2"
+        versionCode 4
+        versionName "0.2.2"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
