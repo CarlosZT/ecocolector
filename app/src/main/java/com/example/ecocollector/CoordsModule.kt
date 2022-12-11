@@ -7,7 +7,6 @@ import android.content.pm.PackageManager
 import android.os.Looper
 import android.util.Log
 import androidx.core.app.ActivityCompat
-import androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult

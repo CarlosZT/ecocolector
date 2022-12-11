@@ -14,5 +14,5 @@ dependencyResolutionManagement {
         maven { url 'https://jitpack.io' }
     }
 }
-rootProject.name = "ecocollector"
+rootProject.name = "com.ganco.com.example.com.example.ecocollector"
 include ':app'

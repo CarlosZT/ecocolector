@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="context_entries">
+        <item>At home</item>
+        <item> At school</item>
+        <item>At work</item>
+        <item>At street</item>
+        <item>At park</item>
+        <item>At store</item>
+        <item>On car</item>
+        <item>On bus</item>
+    </string-array>
+</resources>
