@@ -89,15 +89,18 @@ class NoiseMeter : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         lgv.animate()
 
         coords = CoordsModule(this)
+        verifyStorage()
 
         btnSubmitNoise.setOnClickListener{
             submit()
         }
 
-        submit()
+
 
         if(!aRec.hasPermissions())
             aRec.requestPermissions()
+
+
 
         pt = Runnable{
             amp = aRec.amplitude
@@ -115,7 +118,6 @@ class NoiseMeter : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                 fg.lon.put(coords.longitude)
 
                 lblData.text = "Avg: ${avg.toFloat()}dB\nStd: ${std.toFloat()}dB "+
-                        "\nLat: ${coords.latitude}°, Lon: ${coords.longitude}°" +
                         "\nTime sampled: ${timer * loopCounter}s"
                 startLoop()
             }
@@ -123,6 +125,7 @@ class NoiseMeter : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
         stopFlag = Runnable{
             stopSampler()
+
         }
 
         resetPlot()
@@ -149,9 +152,8 @@ class NoiseMeter : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 //                    }
                 } else {
                     dataContextNoise.isEnabled = false
-                    fg.registry.accumulate("context", contextOption)
+                    fg.registry.accumulate("transporte", contextOption)
                     lblData.text = "Avg: 0dB\nStd: 0dB "+
-                            "\nLat: 0.0°, Lon: 0.0°" +
                             "\nTime sampled: 0s"
                     fg.templates()
                     window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -159,6 +161,7 @@ class NoiseMeter : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                     startLoop()
                     recCtrl.isEnabled = false
                     resetPlot()
+
                 }
                 status = !status
             }else
@@ -230,6 +233,7 @@ class NoiseMeter : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         samplerLocker = false
         coords.stopLocationUpdates()
         aRec.stop()
+
     }
 
     private fun startSampler(){
@@ -367,8 +371,15 @@ class NoiseMeter : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         return super.onOptionsItemSelected(item)
     }
 
+    private fun verifyStorage(){
+        if(fg.hasFiles()){
+            btnSubmitNoise.visibility = View.VISIBLE
+        }else{
+            btnSubmitNoise.visibility = View.GONE
+            Log.d("COUT", "<empty>")
+        }
 
-
+    }
 
 }
 

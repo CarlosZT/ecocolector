@@ -5,12 +5,14 @@ import android.content.Context
 import android.content.Intent
 import android.net.ConnectivityManager
 import android.net.Uri
+import android.os.Build.VERSION
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.MotionEvent
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -22,6 +24,7 @@ class MainActivity : AppCompatActivity() {
 
     private var deniedCounter = 0
     private var fg = FileGenerator(this, FileGenerator.CO2_MEASURE)
+    private var action = ArrayList<String>()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,6 +32,7 @@ class MainActivity : AppCompatActivity() {
 
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
         setContentView(R.layout.activity_main)
+        textView3.text = "Release Version: v${BuildConfig.VERSION_NAME}"
         var prefManager = PrefManager(this)
         if (prefManager.isFirstTimeLaunch){
             prefManager.isFirstTimeLaunch = false
@@ -51,20 +55,28 @@ class MainActivity : AppCompatActivity() {
 
 
         btnAudio.setOnClickListener {
-            if(CoordsModule(this).hasPermissions())
+            action.add("audio")
+            if(CoordsModule(this).hasPermissions() && action[0] == "audio") {
                 startActivity(Intent(this, NoiseMeter::class.java))
-            else
+            }
+            else {
                 CoordsModule(this).requestPermissions()
+            }
             Log.d("COUT", "btn noise")
 
         }
 
         btnCO2Sensor.setOnClickListener {
-            if (CoordsModule(this).hasPermissions())
+            action.add("co2")
+            if (CoordsModule(this).hasPermissions() && action[0] == "co2") {
                 startActivity(Intent(this, BlueTracker::class.java))
-            else
+            }
+            else {
                 CoordsModule(this).requestPermissions()
+            }
+
             Log.d("COUT", "btn co2")
+
 
         }
 
@@ -88,6 +100,7 @@ class MainActivity : AppCompatActivity() {
             btnSubmit.visibility = View.VISIBLE
         }else{
             btnSubmit.visibility = View.GONE
+            Log.d("COUT", "<empty>")
         }
 
     }
@@ -163,6 +176,7 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         verifyStorage()
+        action = ArrayList<String>()
     }
 
 }

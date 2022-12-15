@@ -26,6 +26,7 @@ import com.ingenieriajhr.blujhr.BluJhr
 import com.jjoe64.graphview.GraphView
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
+import kotlinx.android.synthetic.main.activity_audio_recorder.*
 import kotlinx.android.synthetic.main.activity_blue_tracker.*
 import kotlinx.android.synthetic.main.activity_blue_tracker.graphView
 
@@ -48,6 +49,8 @@ class BlueTracker : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
     private lateinit var pt:Runnable
     private var handler:Handler = Handler()
+    private lateinit var countdown: Runnable
+    private var cd_timer = 0
     private val SAMPLING_RATE:Long = 30
     private var locker = false
 
@@ -81,10 +84,11 @@ class BlueTracker : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
         coords = CoordsModule(this)
 
+        verifyStorage()
         btnSubmitCO2.setOnClickListener{
             submit()
         }
-        submit()
+
 
         blue = BluJhr(this)
 
@@ -93,6 +97,22 @@ class BlueTracker : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         if (!hasPermissions()){
             requestPermissions()
         }
+
+        countdown = Runnable{
+            var t = 0
+            if (cd_timer >= 150) {
+                cd_timer -= 150
+//                Log.d("COUT", "${t}")
+            }
+            else
+                cd_timer = 0
+
+            t = cd_timer/1000
+//            lblTime.text = "Next measure: ${t}s"
+            handler.postDelayed(countdown, 150)
+        }
+
+
 
         btnBegin.setOnClickListener {
 
@@ -107,7 +127,7 @@ class BlueTracker : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
         sensorCtrl.setOnClickListener {
             if(!sampling){
-                fg.registry.accumulate("context", contextOption)
+                fg.registry.accumulate("transporte", contextOption)
                 dataContextCO2.isEnabled = false
                 data.text = "Requesting..."
                 fg.templates()
@@ -117,6 +137,8 @@ class BlueTracker : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                 sampling = !sampling
                 coords.startService()
                 sensorCtrl.text = "Stop"
+                cd_timer = SAMPLING_RATE.toInt() * 1000 - 150
+                handler.postDelayed(countdown, 150)
                 handler.postDelayed(pt, SAMPLING_RATE * 1000)
                 window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             }else{
@@ -155,6 +177,7 @@ class BlueTracker : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         counter = 1
         locker = true
         sampling = false
+        handler.removeCallbacks(countdown)
         handler.removeCallbacks(pt)
         coords.stopLocationUpdates()
         window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -258,8 +281,11 @@ class BlueTracker : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             override fun rxDate(rx: String) {
                 var ppm:Int = rx.toInt()
 
-                if(!locker)
+                if(!locker) {
                     handler.postDelayed(pt, SAMPLING_RATE * 1000)
+                    cd_timer = SAMPLING_RATE.toInt() * 1000 - 150
+                    handler.postDelayed(countdown, 150)
+                }
 
                 if (ppm <= 0){
                     if (init == 0) {
@@ -268,8 +294,7 @@ class BlueTracker : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                     }
                 }else {
                     data.text = "Levels: $ppm ppm" +
-                            "\nLat: ${coords.latitude}, Lon: ${coords.longitude}" +
-                            "\nTime sampled: ${SAMPLING_RATE * counter}"
+                            "\nTime sampled: ${SAMPLING_RATE * counter}s"
                     plotData(ppm.toDouble())
                     counter++
 
@@ -420,5 +445,14 @@ class BlueTracker : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         startActivity(Intent(this, TutorialPager::class.java))
         Log.d("COUT", "Selected ${item.itemId} ${item.title}")
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun verifyStorage(){
+        if(fg.hasFiles()){
+            btnSubmitCO2.visibility = View.VISIBLE
+        }else{
+            btnSubmitCO2.visibility = View.GONE
+        }
+
     }
 }

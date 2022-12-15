@@ -54,11 +54,13 @@ class FileGenerator(private val ctx: Activity, private val type:Int) {
     fun hasFiles():Boolean{
         available = ArrayList<File>()
         var dirs = Files.list(Path(ROOT_PATH + PATH))
+        Log.d("COUT", "Files available: ")
         try {
             dirs.forEach {
                 for (n in NAMES){
                     if (it.name.contains(n)){
                         available.add(it.toFile())
+                        Log.d("COUT", it.name)
                     }
                 }
             }

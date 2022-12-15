@@ -8,10 +8,11 @@
     android:background="@color/bg_screen1"
     tools:context=".TutorialPager">
 
+
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/viewPager"
         android:layout_width="match_parent"
-        android:layout_height="750dp"
+        android:layout_height="700dp"
         android:clipToPadding="false"
         android:foregroundGravity="center"
         android:overScrollMode="never"
@@ -22,40 +23,41 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0" />
 
-
     <com.google.android.material.button.MaterialButton
-        style="@style/TextAppearance.AppCompat.Widget.Button.Colored"
-        android:textColor="@color/white"
-        android:backgroundTint="@color/bg_screen1"
-        app:strokeColor="@color/white"
-        app:strokeWidth="3dp"
         android:id="@+id/btnNext"
+        style="@style/TextAppearance.AppCompat.Widget.Button.Colored"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginStart="144dp"
-        android:layout_marginBottom="32dp"
+        android:backgroundTint="@color/bg_screen1"
         android:text="Next"
+        android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/btnBack" />
+        app:layout_constraintHorizontal_bias="0.815"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.976"
+        app:strokeColor="@color/white"
+        app:strokeWidth="3dp" />
 
     <com.google.android.material.button.MaterialButton
-        style="@style/TextAppearance.AppCompat.Widget.Button.Colored"
-        android:textColor="@color/white"
-        android:backgroundTint="@color/bg_screen1"
-        app:strokeColor="@color/white"
-        app:strokeWidth="3dp"
         android:id="@+id/btnBack"
+        style="@style/TextAppearance.AppCompat.Widget.Button.Colored"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginStart="48dp"
-        android:layout_marginBottom="32dp"
+        android:backgroundTint="@color/bg_screen1"
         android:text="Back"
+        android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.203"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.976"
+        app:strokeColor="@color/white"
+        app:strokeWidth="3dp" />
 
     <View
         android:id="@+id/divider"
